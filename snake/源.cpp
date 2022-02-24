@@ -10,6 +10,7 @@
 #define KET_DOWN 80
 #define KET_LEFT 75 
 #define KET_RIGHT 77
+#define SPACE 32
 
 enum DIR
 {
@@ -24,6 +25,7 @@ struct Snake
 	int size;
 	int dir;
 	int speed;
+	bool status;
 	POINT coord[5000];
 }snake;
 
@@ -52,7 +54,7 @@ int main()
 		SnakeMove();
 		KeyControl();
 		FoodEat();
-		Sleep(40);
+		Sleep(100);
 	}
 	return 0;
 }
@@ -65,6 +67,7 @@ void GameInit()
 	snake.size = SnakeSize;
 	snake.speed = SnakeSpeed;
 	snake.dir = RIGHT;
+	snake.status = true;
 	for (int i = 0; i < snake.size; i++)
 	{
 		snake.coord[i].x = (snake.size-i)*10+20;
@@ -101,13 +104,15 @@ void GameDraw()
 
 void SnakeMove()
 {
-	for (int i = snake.size-1; i > 0 ; i--)
+	if (snake.status)
 	{
-		snake.coord[i].x = snake.coord[i-1].x;
-		snake.coord[i].y = snake.coord[i-1].y;
-	}
-	switch (snake.dir)
-	{
+		for (int i = snake.size - 1; i > 0; i--)
+		{
+			snake.coord[i].x = snake.coord[i - 1].x;
+			snake.coord[i].y = snake.coord[i - 1].y;
+		}
+		switch (snake.dir)
+		{
 		case RIGHT:
 			snake.coord[0].x += SnakeSpeed;
 			if (snake.coord[0].x >= 640)
@@ -117,19 +122,20 @@ void SnakeMove()
 			snake.coord[0].x -= SnakeSpeed;
 			if (snake.coord[0].x <= 0)
 				snake.coord[0].x = 640;
-			break;		
-		case UP:		
+			break;
+		case UP:
 			snake.coord[0].y -= SnakeSpeed;
 			if (snake.coord[0].y <= 0)
 				snake.coord[0].y = 480;
-			break;		
-		case DOWN:		
+			break;
+		case DOWN:
 			snake.coord[0].y += SnakeSpeed;
 			if (snake.coord[0].y >= 480)
 				snake.coord[0].y = 0;
 			break;
 		default:
 			break;
+		}
 	}
 }
 
@@ -140,20 +146,23 @@ void KeyControl()
 		switch (_getch())
 		{
 		case KET_UP:
-			if(snake.dir != DOWN)
+			if(snake.dir != DOWN && snake.status)
 				snake.dir = UP;
 			break;
 		case KET_DOWN:
-			if (snake.dir != UP)
+			if (snake.dir != UP && snake.status)
 				snake.dir = DOWN;
 			break;
 		case KET_LEFT:
-			if (snake.dir != RIGHT)
+			if (snake.dir != RIGHT && snake.status)
 				snake.dir = LEFT;
 			break;
 		case KET_RIGHT:
-			if (snake.dir != LEFT)
+			if (snake.dir != LEFT && snake.status)
 				snake.dir = RIGHT;
+			break;
+		case SPACE:
+			snake.status = !snake.status;
 			break;
 		default:
 			break;
